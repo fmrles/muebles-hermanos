@@ -4,6 +4,7 @@ import com.evaluacion2.muebles_hermanos.model.entity.Mueble;
 import com.evaluacion2.muebles_hermanos.repository.MuebleRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.lang.NonNull;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,15 +34,14 @@ public class MuebleService {
     public List<Mueble> listarTodos() {
         return muebleRepository.findAll();
     }
-    
     // CRUD: READ (Listar por ID)
-    public Optional<Mueble> listarPorId(Integer id) {
+    public Optional<Mueble> listarPorId(@NonNull Integer id) {
         return muebleRepository.findById(id);
     }
 
     // CRUD: UPDATE 
     @Transactional
-    public Optional<Mueble> actualizarMueble(Integer id, Mueble detallesMueble) {
+    public Optional<Mueble> actualizarMueble(@NonNull Integer id, Mueble detallesMueble) {
         return muebleRepository.findById(id)
             .map(muebleExistente -> {
                 muebleExistente.setNombreMueble(detallesMueble.getNombreMueble());
@@ -55,7 +55,7 @@ public class MuebleService {
 
     // CRUD: DESACTIVAR
     @Transactional
-    public boolean desactivarMueble(Integer id) {
+    public boolean desactivarMueble(@NonNull Integer id) {
         return muebleRepository.findById(id)
             .map(mueble -> {
                 mueble.setEstado("Inactivo");
