@@ -63,4 +63,15 @@ public class MuebleService {
                 return true;
             }).orElse(false);
     }
+
+    // CRUD: ACTIVAR
+    @Transactional
+    public boolean activarMueble(@NonNull Integer id) {
+        return muebleRepository.findById(id)
+            .map(mueble -> {
+                mueble.setEstado("Activo"); // Cambia el estado a Activo
+                muebleRepository.save(mueble);
+                return true;
+            }).orElse(false);
+    }
 }

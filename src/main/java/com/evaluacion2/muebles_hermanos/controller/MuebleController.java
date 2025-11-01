@@ -50,12 +50,21 @@ public class MuebleController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    // [DELETE/DESACTIVAR] PUT /api/catalogo/muebles/{id}/desactivar
+    // [DESACTIVAR] PUT /api/catalogo/muebles/{id}/desactivar
     @PutMapping("/{id}/desactivar")
     public ResponseEntity<Void> desactivarMueble(@PathVariable int id) {
         if (muebleService.desactivarMueble(id)) {
             return ResponseEntity.ok().build(); 
         }
         return ResponseEntity.notFound().build();
+    }
+
+    // [ACTIVAR] PUT /api/catalogo/muebles/{id}/activar
+    @PutMapping("/{id}/activar")
+    public ResponseEntity<Void> activarMueble(@PathVariable int id) {
+        if (muebleService.activarMueble(id)) {
+            return ResponseEntity.ok().build(); 
+        }
+        return ResponseEntity.notFound().build(); 
     }
 }
