@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CotizacionItemRepository extends JpaRepository<CotizacionItem, Integer> {
-    List<CotizacionItem> findByCotizacionId(Integer cotizacionId);
+    List<CotizacionItem> findByCotizacion_IdCotizacion(Integer idCotizacion);
 }

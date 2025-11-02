@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "cotizacion")
 @Data
@@ -30,5 +32,6 @@ public class Cotizacion {
 
     // Relación 1:N con los ítems de cotización
     @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties({"cotizacion"})
     private List<CotizacionItem> items;
 }

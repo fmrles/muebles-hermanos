@@ -60,7 +60,7 @@ public class CotizacionService {
             throw new IllegalArgumentException("La cotización ya ha sido confirmada como venta.");
         }
 
-        List<CotizacionItem> items = itemRepository.findByCotizacionId(cotizacionId);
+        List<CotizacionItem> items = itemRepository.findByCotizacion_IdCotizacion(cotizacionId);
 
         // 1. Valido y Decremento el Stock
         for (CotizacionItem item : items) {

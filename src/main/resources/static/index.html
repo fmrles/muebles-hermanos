@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mueblería Los Muebles Hermanos - Validador</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; }
+        h1, h2 { color: #343a40; }
+        .container { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); }
+        button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; margin-right: 10px; }
+        .btn-primary { background-color: #007bff; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-primary:hover, .btn-success:hover, .btn-danger:hover { opacity: 0.9; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #dee2e6; }
+        th { background-color: #e9ecef; }
+        .status-activo { color: #28a745; font-weight: bold; }
+        .status-inactivo { color: #dc3545; }
+        .status-cotizado { color: #ffc107; }
+        .status-confirmado { color: #17a2b8; }
+        .output-box { background: #e9ecef; padding: 10px; border-radius: 4px; margin-top: 10px; font-family: monospace; font-size: 14px; white-space: pre-wrap; max-height: 300px; overflow-y: auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        select, input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+    <h1>Mueblería - Plataforma de Gestión</h1>
+
+    <div id="muebles-management" class="container">
+        <h2>1. Catálogo de Muebles y Gestión de Estado</h2>
+        <button class="btn-primary" onclick="loadCatalog()">Listar Muebles (GET)</button>
+        <div id="muebles-list-output"></div>
+    </div>
+
+    <div id="cotizacion-creation" class="container">
+        <h2>2. Crear Cotización con Variantes</h2>
+        <div class="form-group">
+            <label for="mueble-select">Seleccionar Mueble:</label>
+            <select id="mueble-select" onchange="updateVariantOptions()"></select>
+        </div>
+        
+        <div class="form-group">
+            <label for="variante-select">Seleccionar Variantes (Ctrl+Click para múltiple):</label>
+            <select id="variante-select" multiple size="5"></select>
+        </div>
+        
+        <div class="form-group">
+            <label for="cantidad-input">Cantidad:</label>
+            <input type="number" id="cantidad-input" value="1" min="1">
+        </div>
+
+        <button class="btn-success" onclick="crearCotizacion()">Crear y Cotizar (POST)</button>
+        <div id="cotizacion-creation-output" class="output-box"></div>
+    </div>
+
+    <div id="cotizacion-summary" class="container">
+        <h2>3. Resumen de Cotizaciones y Ventas</h2>
+        <button class="btn-primary" onclick="listarCotizaciones()">Listar Cotizaciones (GET)</button>
+        <p><strong>Última Cotización Creada ID:</strong> <span id="last-cotizacion-id">N/A</span></p>
+        <button class="btn-success confirm" onclick="confirmarVenta()">Confirmar Venta (PUT)</button>
+        <div id="cotizaciones-list-output" class="output-box"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8080/api';
+        let fullCatalog = [];
+        let allVariants = [];
+        let lastCotizacionId = null;
+
+        // ===============================================
+        // AUXILIARES
+        // ===============================================
+
+        function log(containerId, message) {
+            document.getElementById(containerId).innerHTML = message;
+        }
+
+        // Llama a la API para obtener un recurso
+        async function fetchData(endpoint) {
+            const response = await fetch(endpoint);
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Error ${response.status}: ${errorText}`);
+            }
+            return response.json();
+        }
+
+        // ===============================================
+        // 1. GESTIÓN DE CATÁLOGO Y ESTADO
+        // ===============================================
+
+        function buildCatalogTable(muebles) {
+            let html = `<table><thead><tr><th>ID</th><th>Nombre</th><th>Precio Base</th><th>Stock</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>`;
+            html += muebles.map(m => `
+                <tr>
+                    <td>${m.idMueble}</td>
+                    <td>${m.nombreMueble}</td>
+                    <td>$${m.precioBase.toLocaleString('es-CL')}</td>
+                    <td>${m.stock}</td>
+                    <td class="${m.estado === 'Activo' ? 'status-activo' : 'status-inactivo'}">${m.estado}</td>
+                    <td>
+                        <button class="btn-primary" onclick="cambiarEstadoMueble(${m.idMueble}, '${m.estado === 'Activo' ? 'desactivar' : 'activar'}')">
+                            ${m.estado === 'Activo' ? 'Desactivar' : 'Activar'}
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+            html += `</tbody></table>`;
+            return html;
+        }
+
+        async function loadCatalog() {
+            try {
+                // 1. Cargar Muebles
+                fullCatalog = await fetchData(`${API_BASE}/catalogo/muebles`);
+                log('muebles-list-output', buildCatalogTable(fullCatalog));
+                
+                // 2. Cargar Variantes (necesario para el select de cotización)
+                allVariants = await fetchData(`${API_BASE}/catalogo/variantes`);
+                
+                // 3. Poblar selectores
+                populateMuebleSelector(fullCatalog);
+                updateVariantOptions(); // Poblar inicialmente el selector de variantes
+                
+            } catch (error) {
+                log('muebles-list-output', `Error al cargar datos: ${error.message}`);
+            }
+        }
+
+        // Funcionalidad de Activación/Desactivación (Usa el endpoint PUT)
+        async function cambiarEstadoMueble(id, action) {
+            const endpoint = `${API_BASE}/catalogo/muebles/${id}/${action}`;
+            const response = await fetch(endpoint, { method: 'PUT' });
+            
+            if (response.ok) {
+                log('muebles-list-output', `ÉXITO: Mueble ID ${id} cambiado a ${action.toUpperCase()}.`);
+            } else {
+                log('muebles-list-output', `FALLO al cambiar estado del Mueble ID ${id}. Status: ${response.status}`);
+            }
+            await loadCatalog(); // Recargar la tabla para mostrar el nuevo estado
+        }
+
+        // ===============================================
+        // 2. CREACIÓN DE COTIZACIÓN DINÁMICA
+        // ===============================================
+
+        function populateMuebleSelector(muebles) {
+            const select = document.getElementById('mueble-select');
+            select.innerHTML = '<option value="">-- Seleccionar --</option>';
+            muebles.forEach(m => {
+                const option = document.createElement('option');
+                option.value = m.idMueble;
+                option.textContent = `${m.nombreMueble} ($${m.precioBase.toLocaleString('es-CL')})`;
+                select.appendChild(option);
+            });
+        }
+
+        function updateVariantOptions() {
+             const select = document.getElementById('variante-select');
+             select.innerHTML = '';
+             allVariants.forEach(v => {
+                 // La variante 'Normal' (ID 1) no se debe seleccionar explícitamente si hay otras
+                 if (v.idVariante !== 1) { 
+                    const option = document.createElement('option');
+                    option.value = v.idVariante;
+                    option.textContent = `${v.nombreVariante} (+$${v.precioAdicional.toLocaleString('es-CL')})`;
+                    select.appendChild(option);
+                 }
+             });
+        }
+        
+        async function crearCotizacion() {
+            const muebleId = parseInt(document.getElementById('mueble-select').value);
+            const cantidad = parseInt(document.getElementById('cantidad-input').value);
+            const varianteSelect = document.getElementById('variante-select');
+            
+            const selectedVariants = Array.from(varianteSelect.selectedOptions)
+                                         .map(option => parseInt(option.value));
+
+            if (!muebleId || cantidad < 1) {
+                alert("Por favor, seleccione un mueble y una cantidad válida.");
+                return;
+            }
+
+            // Si no se selecciona ninguna variante, usamos la ID 1 ('Normal')
+            const varianteIds = selectedVariants.length > 0 ? selectedVariants : [1];
+
+            const cotizacionData = {
+                items: [{ muebleId, cantidad, varianteIds }]
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/cotizaciones`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(cotizacionData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    lastCotizacionId = data.idCotizacion;
+                    document.getElementById('last-cotizacion-id').innerText = lastCotizacionId;
+                    log('cotizacion-creation-output', `[CREACIÓN EXITOSA] ID: ${lastCotizacionId}\nEstado: ${data.estado}\nTotal Final: $${data.totalFinal.toLocaleString('es-CL')}`);
+                } else {
+                    log('cotizacion-creation-output', `[ERROR ${response.status}] ${response.statusText}.`);
+                }
+            } catch (error) {
+                log('cotizacion-creation-output', `Error de conexión: ${error.message}`);
+            }
+        }
+
+
+        // ===============================================
+        // 3. RESUMEN Y VENTA
+        // ===============================================
+        
+        function buildCotizacionTable(cotizaciones) {
+            let html = `<table><thead><tr><th>ID</th><th>Fecha Creación</th><th>Total</th><th>Estado</th></tr></thead><tbody>`;
+            html += cotizaciones.map(c => {
+                const statusClass = c.estado === 'Confirmado' ? 'status-confirmado' : 'status-cotizado';
+                return `
+                    <tr>
+                        <td>${c.idCotizacion}</td>
+                        <td>${new Date(c.fechaCreacion).toLocaleString()}</td>
+                        <td>$${c.totalFinal.toLocaleString('es-CL')}</td>
+                        <td class="${statusClass}">${c.estado}</td>
+                    </tr>
+                `;
+            }).join('');
+            html += `</tbody></table>`;
+            return html;
+        }
+
+        async function listarCotizaciones() {
+             try {
+                const cotizaciones = await fetchData(`${API_BASE}/cotizaciones`);
+                log('cotizaciones-list-output', buildCotizacionTable(cotizaciones));
+            } catch (error) {
+                log('cotizaciones-list-output', `Error al listar cotizaciones: ${error.message}`);
+            }
+        }
+
+        async function confirmarVenta() {
+            if (!lastCotizacionId) {
+                alert("Primero debe crear una cotización para confirmar la venta.");
+                return;
+            }
+            
+            log('cotizaciones-list-output', `Intentando confirmar Cotización ID ${lastCotizacionId} como venta...`);
+            
+            const response = await fetch(`${API_BASE}/cotizaciones/${lastCotizacionId}/confirmar`, {
+                method: 'PUT',
+            });
+            
+            if (response.ok) {
+                log('cotizaciones-list-output', `[VENTA CONFIRMADA EXITOSA] La cotización ${lastCotizacionId} fue vendida. Stock decrementado.`);
+                await listarCotizaciones(); // Muestra el estado actualizado
+                await loadCatalog(); // Muestra el stock actualizado
+            } else {
+                // Captura el error de Stock insuficiente (Status 400 Bad Request)
+                const error = await response.text(); 
+                log('cotizaciones-list-output', `[FALLO DE VENTA] Status ${response.status}.\nDetalle: ${error || 'Stock insuficiente o error en la API.'}`);
+            }
+        }
+
+        // Cargar datos iniciales al cargar la página
+        document.addEventListener('DOMContentLoaded', loadCatalog);
+    </script>
+</body>
+</html>

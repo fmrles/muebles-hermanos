@@ -5,6 +5,8 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "cotizacion_item")
 @Data
@@ -24,6 +26,7 @@ public class CotizacionItem {
     // Relación ManyToOne con Cotizacion (FK cotizacion_id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cotizacion_id", nullable = false)
+    @JsonIgnoreProperties({"items"})
     private Cotizacion cotizacion;
 
     // Relación ManyToOne con Mueble (FK mueble_id)
