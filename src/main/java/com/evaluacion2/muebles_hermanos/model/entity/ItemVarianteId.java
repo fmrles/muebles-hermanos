@@ -8,10 +8,8 @@ public class ItemVarianteId implements Serializable {
     private Integer item; // Mapea a CotizacionItem
     private Integer variante; // Mapea a Variante
 
-    // Requeridos por JPA
     public ItemVarianteId() {}
 
-    // Implementación de equals() y hashCode() es obligatoria
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

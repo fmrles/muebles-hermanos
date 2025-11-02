@@ -79,9 +79,9 @@ public class CotizacionService {
         return cotizacionRepository.save(cotizacion);
     }
 
-    /**
-     * Requisito 5: Confirma una cotización como venta, decrementando stock.
-     */
+    
+    //Confirmo una cotización como venta, decrementando stock.
+     
     @Transactional(rollbackFor = {IllegalArgumentException.class}) // La transacción se revierte si hay error de stock
     public Cotizacion confirmarVenta(Integer cotizacionId) {
         Cotizacion cotizacion = cotizacionRepository.findById(cotizacionId)
@@ -91,24 +91,24 @@ public class CotizacionService {
             throw new IllegalArgumentException("La cotización ya ha sido confirmada como venta.");
         }
 
-        List<CotizacionItem> items = itemRepository.findByCotizacionId(cotizacionId); // Asegúrate de añadir este método al repositorio
+        List<CotizacionItem> items = itemRepository.findByCotizacionId(cotizacionId);
 
-        // 1. Validar y Decrementar Stock
+        // 1. Valido y Decremento el Stock
         for (CotizacionItem item : items) {
             Mueble mueble = item.getMueble();
             int cantidadSolicitada = item.getCantidad();
             
             if (mueble.getStock() < cantidadSolicitada) {
-                // Requisito 5: Mensaje de error (stock insuficiente) y rollback.
+                // Mensaje de error (stock insuficiente) y se hace un rollback.
                 throw new IllegalArgumentException("stock insuficiente para el mueble: " + mueble.getNombreMueble());
             }
 
-            // Decrementar Stock
+            // Decremento el Stock
             mueble.setStock(mueble.getStock() - cantidadSolicitada);
             muebleRepository.save(mueble);
         }
 
-        // 2. Marcar como Confirmado (Venta)
+        // 2. Marco como Confirmado (Venta)
         cotizacion.setEstado("Confirmado");
         cotizacion.setFechaConfirmacion(LocalDateTime.now());
         return cotizacionRepository.save(cotizacion);

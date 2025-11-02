@@ -39,11 +39,11 @@ public class CotizacionController {
             Cotizacion ventaConfirmada = cotizacionService.confirmarVenta(id);
             return ResponseEntity.ok(ventaConfirmada);
         } catch (IllegalArgumentException e) {
-            // Maneja tanto 404 (Cotización no encontrada) como 400 (Stock insuficiente)
+            // Manejo el error 404 (Cotización no encontrada) como el error 400 (Stock insuficiente)
             if (e.getMessage().contains("stock insuficiente")) {
-                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // 400 Bad Request
+                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).build(); // 400 
             }
-            return ResponseEntity.notFound().build(); // 404 Not Found
+            return ResponseEntity.notFound().build(); // 404 
         }
     }
 }
