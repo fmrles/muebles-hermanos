@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <title>Mueblería Los Muebles Hermanos - Validador</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #f8f9fa; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background-color: #DAC5A6; }
         h1, h2 { color: #343a40; }
-        .container { background: #fff; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); }
+        .container { background: #F3ECD9; padding: 20px; margin-bottom: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); }
         button { padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; transition: background-color 0.3s; margin-right: 10px; }
         .btn-primary { background-color: #007bff; color: white; }
         .btn-success { background-color: #28a745; color: white; }
@@ -31,7 +31,7 @@
 
     <div id="muebles-management" class="container">
         <h2>1. Catálogo de Muebles y Gestión de Estado</h2>
-        <button class="btn-primary" onclick="loadCatalog()">Listar Muebles (GET)</button>
+        <button class="btn-primary" onclick="loadCatalog()">Listar Muebles</button>
         <div id="muebles-list-output"></div>
     </div>
 
@@ -52,15 +52,15 @@
             <input type="number" id="cantidad-input" value="1" min="1">
         </div>
 
-        <button class="btn-success" onclick="crearCotizacion()">Crear y Cotizar (POST)</button>
+        <button class="btn-success" onclick="crearCotizacion()">Crear y Cotizar</button>
         <div id="cotizacion-creation-output" class="output-box"></div>
     </div>
 
     <div id="cotizacion-summary" class="container">
         <h2>3. Resumen de Cotizaciones y Ventas</h2>
-        <button class="btn-primary" onclick="listarCotizaciones()">Listar Cotizaciones (GET)</button>
+        <button class="btn-primary" onclick="listarCotizaciones()">Listar Cotizaciones</button>
         <p><strong>Última Cotización Creada ID:</strong> <span id="last-cotizacion-id">N/A</span></p>
-        <button class="btn-success confirm" onclick="confirmarVenta()">Confirmar Venta (PUT)</button>
+        <button class="btn-success confirm" onclick="confirmarVenta()">Confirmar Venta</button>
         <div id="cotizaciones-list-output" class="output-box"></div>
     </div>
 
