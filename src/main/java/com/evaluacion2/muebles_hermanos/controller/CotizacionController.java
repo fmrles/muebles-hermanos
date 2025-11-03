@@ -6,6 +6,7 @@ import com.evaluacion2.muebles_hermanos.service.CotizacionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cotizaciones")
@@ -45,5 +46,11 @@ public class CotizacionController {
             }
             return ResponseEntity.notFound().build(); // 404 
         }
+    }
+
+    //Get /api/cotizaciones : Listar todas las cotizaciones
+    @GetMapping
+    public List<Cotizacion> listarCotizaciones() {
+        return cotizacionService.listarTodas();
     }
 }

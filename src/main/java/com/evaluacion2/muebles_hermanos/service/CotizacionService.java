@@ -82,4 +82,8 @@ public class CotizacionService {
         cotizacion.setFechaConfirmacion(LocalDateTime.now());
         return cotizacionRepository.save(cotizacion);
     }
+
+    public List<Cotizacion> listarTodas() {
+        return cotizacionRepository.findAll();
+    }
 }
