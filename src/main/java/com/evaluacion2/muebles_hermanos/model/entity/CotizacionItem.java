@@ -26,16 +26,16 @@ public class CotizacionItem {
     // Relación ManyToOne con Cotizacion (FK cotizacion_id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cotizacion_id", nullable = false)
-    @JsonIgnoreProperties({"items"})
+    @JsonIgnoreProperties({"items", "hibernateLazyInitializer", "handler"})
     private Cotizacion cotizacion;
 
     // Relación ManyToOne con Mueble (FK mueble_id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mueble_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private Mueble mueble;
 
     // Relación OneToMany con ItemVariante (Tabla de enlace M:N)
-    // Permite ver todas las variantes aplicadas a este ítem.
     @OneToMany(mappedBy = "item", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ItemVariante> variantesAplicadas;
 }

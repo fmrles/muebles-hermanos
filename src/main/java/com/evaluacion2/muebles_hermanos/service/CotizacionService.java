@@ -73,8 +73,15 @@ public class CotizacionService {
             }
 
             // Decremento el Stock
-            mueble.setStock(mueble.getStock() - cantidadSolicitada);
+            int nuevoStock = mueble.getStock() - cantidadSolicitada;
+            mueble.setStock(nuevoStock);
+
+            if(nuevoStock == 0) {
+                mueble.setEstado("Inactivo");
+            }
+
             muebleRepository.save(mueble);
+            
         }
 
         // 2. Marco como Confirmado (Venta)

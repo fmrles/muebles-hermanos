@@ -25,13 +25,13 @@ public class Cotizacion {
     private LocalDateTime fechaConfirmacion;
 
     @Column(name = "estado", nullable = false)
-    private String estado; // Cotizado, Confirmado, Cancelado
+    private String estado; 
 
     @Column(name = "total_final", nullable = false)
     private BigDecimal totalFinal;
 
     // Relación 1:N con los ítems de cotización
     @OneToMany(mappedBy = "cotizacion", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties({"cotizacion"})
+    @JsonIgnoreProperties({"cotizacion", "hibernateLazyInitializer", "handler"})
     private List<CotizacionItem> items;
 }
