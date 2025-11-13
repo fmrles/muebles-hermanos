@@ -1,13 +1,11 @@
 package com.evaluacion2.muebles_hermanos.service;
 
 import com.evaluacion2.muebles_hermanos.model.dto.CotizacionRequest;
-import com.evaluacion2.muebles_hermanos.model.dto.ItemRequest;
 import com.evaluacion2.muebles_hermanos.model.entity.*;
 import com.evaluacion2.muebles_hermanos.repository.*;
 import com.evaluacion2.muebles_hermanos.factory.CotizacionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,35 +15,18 @@ public class CotizacionService {
     private final CotizacionRepository cotizacionRepository;
     private final CotizacionItemRepository itemRepository;
     private final MuebleRepository muebleRepository;
-    private final PrecioService precioService; 
     private final CotizacionFactory cotizacionFactory;
 
-    public CotizacionService(CotizacionRepository cotizacionRepository, CotizacionItemRepository itemRepository, MuebleRepository muebleRepository, PrecioService precioService, CotizacionFactory cotizacionFactory) {
+    public CotizacionService(CotizacionRepository cotizacionRepository, CotizacionItemRepository itemRepository, MuebleRepository muebleRepository, CotizacionFactory cotizacionFactory) {
         this.cotizacionRepository = cotizacionRepository;
         this.itemRepository = itemRepository;
         this.muebleRepository = muebleRepository;
-        this.precioService = precioService;
         this.cotizacionFactory = cotizacionFactory;
     }
 
     @Transactional
     public Cotizacion crearCotizacion(CotizacionRequest request) {
-        BigDecimal totalFinal = BigDecimal.ZERO;
-        
-        // 1. Recalculo el precio y sumo el total
-        for (ItemRequest itemRequest : request.getItems()) {
-            BigDecimal precioTotalItem = precioService.calcularPrecioTotalItem(
-                itemRequest.getMuebleId(), 
-                itemRequest.getVarianteIds(), 
-                itemRequest.getCantidad()
-            );
-            totalFinal = totalFinal.add(precioTotalItem);
-        }
-
-        // 2. Crear la Cotización usando la fábrica
-        Cotizacion cotizacion = cotizacionFactory.crearCotizacion(request, totalFinal);
-
-        // 3. Guardar la Cotización y retornar la entidad completa
+        Cotizacion cotizacion = cotizacionFactory.crearCotizacion(request);
         return cotizacionRepository.save(cotizacion);
     }
 

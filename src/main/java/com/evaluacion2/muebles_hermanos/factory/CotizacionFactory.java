@@ -5,6 +5,9 @@ import com.evaluacion2.muebles_hermanos.model.dto.ItemRequest;
 import com.evaluacion2.muebles_hermanos.model.entity.*;
 import com.evaluacion2.muebles_hermanos.repository.MuebleRepository;
 import com.evaluacion2.muebles_hermanos.repository.VarianteRepository;
+import com.evaluacion2.muebles_hermanos.service.PrecioService;
+
+import java.util.List;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,27 +17,31 @@ public class CotizacionFactory {
     
     private final MuebleRepository muebleRepository;
     private final VarianteRepository varianteRepository;
+    private final PrecioService precioService;
 
-    public CotizacionFactory(MuebleRepository muebleRepository, VarianteRepository varianteRepository) {
+    public CotizacionFactory(MuebleRepository muebleRepository, VarianteRepository varianteRepository, PrecioService precioService) {
         this.muebleRepository = muebleRepository;
         this.varianteRepository = varianteRepository;
+        this.precioService = precioService;
     }
 
-    public Cotizacion crearCotizacion(CotizacionRequest request, BigDecimal totalFinal) {
+    public Cotizacion crearCotizacion(CotizacionRequest request) {
         Cotizacion cotizacion = new Cotizacion();
         cotizacion.setFechaCreacion(LocalDateTime.now());
         cotizacion.setEstado("Cotizado");
-        cotizacion.setTotalFinal(totalFinal);
         
-        // Crea y vincula los CotizacionItem y sus ItemVariante
-        cotizacion.setItems(
-            request.getItems().stream()
+        List<CotizacionItem> items = request.getItems().stream()
                 .map(itemRequest -> crearCotizacionItem(itemRequest, cotizacion))
-                .toList()
-        );
+                .toList();
+        cotizacion.setItems(items);
 
-        // Asegura la bidireccionalidad (JPA requiere esto)
         cotizacion.getItems().forEach(item -> item.setCotizacion(cotizacion));
+
+        BigDecimal totalFinal = items.stream()
+            .map(CotizacionItem::getPrecioItemTotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
+        
+        cotizacion.setTotalFinal(totalFinal);
 
         return cotizacion;
     }
@@ -47,7 +54,13 @@ public class CotizacionFactory {
         CotizacionItem item = new CotizacionItem();
         item.setMueble(mueble);
         item.setCantidad(itemRequest.getCantidad());
-        item.setPrecioItemTotal(BigDecimal.ZERO); // PLACEHOLDER, el servicio lo actualiza con el precio real
+
+        BigDecimal precioTotalItem = precioService.calcularPrecioTotalItem(
+            itemRequest.getMuebleId(), 
+            itemRequest.getVarianteIds(), 
+            itemRequest.getCantidad()
+        );
+        item.setPrecioItemTotal(precioTotalItem);
 
         // Crear y vincular ItemVariante (M:N)
         item.setVariantesAplicadas(
