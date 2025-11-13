@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/cotizaciones")
+@RequestMapping("/cotizaciones")
 public class CotizacionController {
 
     private final CotizacionService cotizacionService;
@@ -19,7 +19,7 @@ public class CotizacionController {
     }
 
     /**
-     * POST /api/cotizaciones : Crea una nueva cotización.
+     * POST /cotizaciones : Crea una nueva cotización.
      */
     @PostMapping
     public ResponseEntity<Cotizacion> crearCotizacion(@RequestBody CotizacionRequest request) {
@@ -32,7 +32,7 @@ public class CotizacionController {
     }
 
     /**
-     * PUT /api/cotizaciones/{id}/confirmar : Confirma la cotización como venta y decrementa stock.
+     * PUT /cotizaciones/{id}/confirmar : Confirma la cotización como venta y decrementa stock.
      */
     @PutMapping("/{id}/confirmar")
     public ResponseEntity<Cotizacion> confirmarVenta(@PathVariable Integer id) {
@@ -48,7 +48,7 @@ public class CotizacionController {
         }
     }
 
-    //Get /api/cotizaciones : Listar todas las cotizaciones
+    //Get /cotizaciones : Listar todas las cotizaciones
     @GetMapping
     public List<Cotizacion> listarCotizaciones() {
         return cotizacionService.listarTodas();

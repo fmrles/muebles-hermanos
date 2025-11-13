@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/catalogo/muebles")
+@RequestMapping("/catalogo/muebles")
 public class MuebleController {
     private final MuebleService muebleService;
 
@@ -16,7 +16,7 @@ public class MuebleController {
         this.muebleService = muebleService;
     }
 
-    // [CREATE] POST /api/catalogo/muebles
+    // [CREATE] POST /catalogo/muebles
     @PostMapping
     public ResponseEntity<Mueble> crearMueble(@RequestBody Mueble nuevoMueble) {
         try {
@@ -28,13 +28,13 @@ public class MuebleController {
         }
     }
 
-    // [READ] GET /api/catalogo/muebles
+    // [READ] GET /catalogo/muebles
     @GetMapping
     public List<Mueble> listarMuebles() {
         return muebleService.listarTodos();
     }
 
-    // [READ] GET /api/catalogo/muebles/{id}
+    // [READ] GET /catalogo/muebles/{id}
     @GetMapping("/{id}")
     public ResponseEntity<Mueble> obtenerMueble(@PathVariable int id) {
         return muebleService.listarPorId(id)
@@ -42,7 +42,7 @@ public class MuebleController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    // [UPDATE] PUT /api/catalogo/muebles/{id}
+    // [UPDATE] PUT /catalogo/muebles/{id}
     @PutMapping("/{id}")
     public ResponseEntity<Mueble> actualizarMueble(@PathVariable int id, @RequestBody Mueble detallesMueble) {
         return muebleService.actualizarMueble(id, detallesMueble)
@@ -50,7 +50,7 @@ public class MuebleController {
             .orElse(ResponseEntity.notFound().build());
     }
 
-    // [DESACTIVAR] PUT /api/catalogo/muebles/{id}/desactivar
+    // [DESACTIVAR] PUT /catalogo/muebles/{id}/desactivar
     @PutMapping("/{id}/desactivar")
     public ResponseEntity<Void> desactivarMueble(@PathVariable int id) {
         if (muebleService.desactivarMueble(id)) {
@@ -59,7 +59,7 @@ public class MuebleController {
         return ResponseEntity.notFound().build();
     }
 
-    // [ACTIVAR] PUT /api/catalogo/muebles/{id}/activar
+    // [ACTIVAR] PUT /catalogo/muebles/{id}/activar
     @PutMapping("/{id}/activar")
     public ResponseEntity<Void> activarMueble(@PathVariable int id) {
         if (muebleService.activarMueble(id)) {

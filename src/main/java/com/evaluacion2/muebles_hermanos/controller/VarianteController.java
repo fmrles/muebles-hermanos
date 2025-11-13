@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/catalogo/variantes")
+@RequestMapping("/catalogo/variantes")
 public class VarianteController {
     
     private final VarianteService varianteService;
